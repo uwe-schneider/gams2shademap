@@ -1,0 +1,31 @@
+$eolcom !
+
+set mapopt /
+        LineWidth 0                   ! Line width (0..3) [Integer]
+        FontSize 6                    ! Font Size (4..10) [Integer]
+        SpaceAround 10                ! Border width (5..20) [Integer]
+        DesiredWidth 700              ! Width of map (500..1500) [Integer]
+        LowColor 255 0 0              ! Color for smallest score [3 integers RGB value]
+        MidColor 0 255 0              ! Color for median score [3 integers RGB value]
+        HighColor 255 255 255         ! Color for highest score [3 integers RGB value]
+        UseGreys False                ! Use grey tints for region shading [Boolean]
+        LowGrey 240 240 240           ! Grey for smallest score [3 integers RGB value]
+        MidGrey 170 170 170           ! Grey for median score [3 integers RGB value]
+        HighGrey 100 100 100          ! Grey for highest score [3 integers RGB value]
+        OrdinalShades False           ! Shade regions according to rank [Boolean]
+        RGBScores False               ! Treat scores as RGB integers [Boolean]
+        BackgroundColor 0 128 255     ! Color for background or sea [3 integers RGB value]
+        NumberRegions False           ! Show region numbers at region centres [Boolean]
+        ShowScores False              ! Show region scores at region centres [Boolean]
+        ShowNames False               ! Show region names at region centres [Boolean]
+        NumberRegionPatch False       ! White patch behind region numbers [Boolean]
+        ShowLegend False              ! Show color key for scores [Boolean]
+        ScoreNDec 2                   ! No. of decimal places for scores in color key (0..4) [Integer]
+        LegendPos 10 80               ! Color key position: Left Top as % of Map size (10..90) [2 integers]
+        yytrans 120                   ! Stretch map vertically (80..120 100=no stretch) [Integer]
+        xDistort 0                    ! Positive values stretch right of map more than left (-30..+30 0=no distortion) [Integer]
+        yDistort 0                    ! Positive values stretch top of map more than bottom (-30..+30 0=no distortion) [Integer]
+        DotCentroids False            ! Show red dots at region centres [Boolean]
+        DotPolyStarts False           ! Mark 1st point of each polygon with red dot [Boolean]
+/;
+$setglobal shademapopts mapopt
