@@ -8,12 +8,13 @@
 SETS
  mapname
   /
-  gadm36_ESP_0
-  gadm36_ESP_1
-  gadm36_ESP_2
-  gadm36_ESP_3
-  gadm36_ESP_4
-  worldcountries
+*  gadm36_ESP_0
+*  gadm36_ESP_1
+*  gadm36_ESP_2
+*  gadm36_ESP_3
+*  gadm36_ESP_4
+gadm36_DEU
+*  worldcountries
   /
 ;
 
@@ -149,6 +150,8 @@ PUT "$libinclude shademap ",mapname.tl," plot",mapname.tl,"_map" /;
     );
 PUTCLOSE;
 
+Execute "sleep 2";  
+
 EXECUTE "gams  4_showmaps.gms  ide=%gams.ide% lo=%gams.lo% errorlog=%gams.errorlog% errmsg=1  cerr=5  pw=120";
 
 Execute "sleep 1";
@@ -178,48 +181,6 @@ Execute "del *.mid";
 
 
 
-
-
-
-
-
-$onecho > process_mif.awk
-# Print 7 lines
-BEGIN {regionnumber = 0;
-       print "* This file contains the X Y coordinates for a map";
-       print "* The first 7 lines in this file are ignored";
-       print "* Each region is followed by the number of polygons";
-       print "* The line after contains the number of points on a polygon";
-       print "* https://www.copsmodels.com/shademap.htm";
-       print "* https://github.com/uwe-schneider/gams2shademap/wiki#gams-to-shademap";
-       print " ";
-      }
-# Print all lines starting with the lowest line, which contains the field "Region"
-# After the coordinates of the first region have been printed, add two lines ("brush" and "pen")
-# Then proceed with the other regions
-{
-    if (tolower($1) == "region") regionnumber = regionnumber + 1;
-    if (tolower($1) == "region" && regionnumber > 1) print "brush";
-    if (tolower($1) == "region" && regionnumber > 1) print "pen";
-    if (tolower($1) == "region" && regionnumber > 0) print "REGION ", $2;
-    if (tolower($1) != "region" && tolower($1) != "brush" && tolower($1) != "pen" && regionnumber > 0) print $1,$2;
-}
-$offecho
-
-
-$onecho > process_set.awk
-BEGIN { FS = ","; linenumber = 1; }
-# Print the first field of each line
-      {
-    if (linenumber < 2) print "SET";
-    if (linenumber < 2) printf "%s", FILENAME;
-    if (linenumber < 2) print "_sm  Set of",FILENAME,"Region Names Needed for ShadeMap (SM)";
-    if (linenumber < 2) print "  /";
-    linenumber = linenumber + 1;
-    if (linenumber > 1) print "  ",$1;
-      }
-END   { print "  /;"; }
-$offecho
 
 
 
