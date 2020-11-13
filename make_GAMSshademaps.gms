@@ -13,8 +13,8 @@ SETS
 *  gadm36_ESP_2
 *  gadm36_ESP_3
 *  gadm36_ESP_4
-gadm36_DEU
-*  worldcountries
+*  gadm36_DEU
+   worldcountries
   /
 ;
 
@@ -23,13 +23,17 @@ gadm36_DEU
 FILE makemid /2_make_mid.gms/; PUT  makemid;
 makemid.tW=0; makemid.LW=0; makemid.NW=0; makemid.ND=0;
 
+* The following code identifies duplicates in columns
+* If duplicates exist, then the column is not used
+
 SET Columns /column1*column20/;
+*SET Columns /column1*column5/;
 
 PUT "$onecho > analyze_mid.awk" /;
 PUT 'BEGIN { FS = ","; column_for_print = 0;' /;
 LOOP(Columns, PUT "usecol_",ord(Columns)," = 1;"/; ); PUT "}" /;
 PUT "{" /;
-LOOP(Columns, PUT "column_",ord(Columns),"[$",ord(Columns),"]++;" /; ); PUT /;
+LOOP(Columns, PUT "if($",ord(Columns)," != ",'""',") column_",ord(Columns),"[$",ord(Columns),"]++;" /; ); PUT /;
 LOOP(Columns, PUT "if(column_",ord(Columns),"[$",ord(Columns),"] > 1.5) usecol_",ord(Columns)," = 0;  " /; ); PUT /;
 PUT "}" / "END {" /;
 LOOP(Columns, PUT "if(usecol_",ord(Columns)," > 0.5 && column_for_print < 0.8) column_for_print = ",ord(Columns),";" /; ); PUT /;
@@ -42,7 +46,7 @@ PUT "$onecho > prepare_set.awk" /;
 PUT 'BEGIN { FS = ","; column_for_print = 0;' /;
 LOOP(Columns, PUT "usecol_",ord(Columns)," = 1;"/; ); PUT "}" /;
 PUT "{" /;
-LOOP(Columns, PUT "column_",ord(Columns),"[$",ord(Columns),"]++;" /; ); PUT /;
+LOOP(Columns, PUT "if($",ord(Columns)," != ",'""',") column_",ord(Columns),"[$",ord(Columns),"]++;" /; ); PUT /;
 LOOP(Columns, PUT "if(column_",ord(Columns),"[$",ord(Columns),"] > 1.5) usecol_",ord(Columns)," = 0;  " /; ); PUT /;
 PUT "}" / "END {" /;
 LOOP(Columns, PUT "if(usecol_",ord(Columns)," > 0.5 && column_for_print < 0.8) column_for_print = ",ord(Columns),";" /; ); PUT /;
@@ -150,7 +154,7 @@ PUT "$libinclude shademap ",mapname.tl," plot",mapname.tl,"_map" /;
     );
 PUTCLOSE;
 
-Execute "sleep 2";  
+Execute "sleep 2";
 
 EXECUTE "gams  4_showmaps.gms  ide=%gams.ide% lo=%gams.lo% errorlog=%gams.errorlog% errmsg=1  cerr=5  pw=120";
 
