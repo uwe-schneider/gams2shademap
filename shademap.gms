@@ -8,59 +8,72 @@ $hidden
 $hidden                Usage:  $libinclude shademap mapid data [mapping]
 $hidden
 $hidden                where   mapid.mid/mapid.mif     describe the region ids and boundaries
-$hidden                        data            is a one-dimensional numeric item to be portrayed
-$hidden                        mapping(r,s)    associates each map region id (r) with a data element (s)
+$hidden                        data                    is a one-dimensional numeric item to be portrayed
+$hidden                        mapping(r,s)            associates each map region id (r) with a data element (s)
 $hidden
 
+* Assign compile-time variables:
+* %mapid%   = %1
+* %data%    = %2
+* %mapping% = %3
 $setargs mapid data mapping
-
 $log     Running SHADEMAP with mapid = %mapid%, data = %data% and mapping = %mapping%
 
-
-$hidden        Check for the .mid file
-$if exist %mapid%.mid                            $goto gotmid
-$if exist "%gams.sysdir%gislib\%mapid%.mid"      $log Copying MID file to working directory
-$if exist "%gams.sysdir%gislib\%mapid%.mid"      $call 'copy "%gams.sysdir%gislib\%mapid%.mid" %mapid%.mid'
-$if exist "%gams.sysdir%gislib\%mapid%.mid"      $goto gotmid
+* Check for the .mid file
+$if exist %mapid%.mid                             $goto gotmid
+$if exist "%gams.sysdir%gislib\%mapid%.mid"       $log Copying MID file to working directory
+$if exist "%gams.sysdir%gislib\%mapid%.mid"       $call 'copy "%gams.sysdir%gislib\%mapid%.mid" %mapid%.mid'
+$if exist "%gams.sysdir%gislib\%mapid%.mid"       $goto gotmid
 $abort Cannot find %mapid%.mid in working directory or gislib gams system sub-directory.
-
-$hidden        Check for the .mif file
 $label gotmid
+
+* Check for the .mif file
 $if exist %mapid%.mif $goto gotmif
-$if exist "%gams.sysdir%gislib\%mapid%.mif"      $log Copying MIF file to working directory
-$if exist "%gams.sysdir%gislib\%mapid%.mif"      $call 'copy "%gams.sysdir%gislib\%mapid%.mif" %mapid%.mif'
-$if exist "%gams.sysdir%gislib\%mapid%.mif"      $goto gotmif
+$if exist "%gams.sysdir%gislib\%mapid%.mif"       $log Copying MIF file to working directory
+$if exist "%gams.sysdir%gislib\%mapid%.mif"       $call 'copy "%gams.sysdir%gislib\%mapid%.mif" %mapid%.mif'
+$if exist "%gams.sysdir%gislib\%mapid%.mif"       $goto gotmif
 $abort Cannot find %mapid%.mid in working directory or gislib gams system sub-directory.
-
-*       Generate sequence sets for writing data to this map:
-
-$hidden        Generate set definitions.
 $label gotmif
+
+* Generate sequence sets for writing data to this map:
+* Generate set definitions
 $if exist "%gams.scrdir%shademap.scr"             $call del "%gams.scrdir%shademap.scr"
 
 
+* If not existing, create directory for powerpoint stuff
+$if not exist %gams.sysdir%pptlib                 $call mkdir %gams.sysdir%pptlib
+
+* Declare powerpoint counter and text file for image list (Huck utility)
 $if not declared gpxyzsm_plot_count               scalar gpxyzsm_plot_count /0/;
-$if not declared gams_ppt_list                    file gams_ppt_list /"%gams.sysdir%inclib\gams_ppt_list.txt"/;
+$if not declared gams_ppt_list                    file gams_ppt_list /'%gams.sysdir%pptlib\gams_ppt_list.txt'/;
 
+* Reset powerpoint if needed
+$if '%1' == 'reset'                               execute 'if exist "%gams.sysdir%pptlib\gams_ppt_list.txt" del "%gams.sysdir%pptlib\gams_ppt_list.txt" >nul';
+$if '%1' == 'reset'                               gpxyzsm_plot_count = 0;
+$if '%1' == 'reset'                               $goto end_of_shademap
 
-* determine restart file
-$if setglobal gpxyzsm_restartfile                           $setglobal gpxyzsm_orgrestartfile "%gpxyzsm_restartfile%"
+* Determine restart file
+$if setglobal gpxyzsm_restartfile                 $setglobal gpxyzsm_orgrestartfile "%gpxyzsm_restartfile%"
 $setglobal gpxyzsm_restartfile %system.rfile%
-$if not setglobal gpxyzsm_restartfile                       $goto smlabel_no_new_restart_file
-$if "%gpxyzsm_restartfile%" ==""                            $goto smlabel_no_new_restart_file
+$if not setglobal gpxyzsm_restartfile             $goto smlabel_no_new_restart_file
+$if "%gpxyzsm_restartfile%" ==""                  $goto smlabel_no_new_restart_file
 $if "%gpxyzsm_restartfile%" =="%gpxyzsm_orgrestartfile%"    $goto smlabel_no_new_restart_file
-* things to be done if this is the first execution of gnuplot or shademap after a gams restart
-execute 'if exist "%gams.sysdir%inclib\gams_ppt_list.txt" del "%gams.sysdir%inclib\gams_ppt_list.txt" >nul';
+
+* delete powerpoint file if this is the first execution of gnuplot or shademap after a gams restart
+* note some variables are jointly used in the gnuplot and shademap interface
+execute 'if exist "%gams.sysdir%pptlib\gams_ppt_list.txt" del "%gams.sysdir%pptlib\gams_ppt_list.txt" >nul';
 gpxyzsm_plot_count = 0;
 $label smlabel_no_new_restart_file
 
 $if not declared  %mapid%_map  $include  %gams.sysdir%gislib\%mapid%_sm.gms
 
-$if declared shademap_d                          $goto gotdeclarations
-$if setglobal dont_delete_list                   $goto  list_file_ready
-execute 'if exist "%gams.sysdir%inclib\gams_ppt_list.txt" del "%gams.sysdir%inclib\gams_ppt_list.txt" >nul';
+$if declared shademap_d                           $goto gotdeclarations
+$if setglobal dont_delete_list                    $goto  list_file_ready
+execute 'if exist "%gams.sysdir%pptlib\gams_ppt_list.txt" del "%gams.sysdir%pptlib\gams_ppt_list.txt" >nul';
 $setglobal dont_delete_list  yes
 $label  list_file_ready
+
+
 
 alias (shademap_u,shademap_uu,*);
 files
@@ -114,6 +127,7 @@ $label gotdeclarations
 $if "%2" == "loop"                             $goto end_of_shademap
 
 
+
 $hidden        Define a temporary file in which to pass data:
 
 $if defined shademap_u $goto gotfiles
@@ -128,7 +142,6 @@ shademap_d.nd = 13;
 
 $label gotfiles
 $onuni
-
 put shademap_d;
 
 loop(%mapid%_map(%mapid%_r,shademap_u),
