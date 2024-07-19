@@ -737,17 +737,18 @@ $if setglobal sm_ppt_9         put 'start /w shademap %mapid% %mapid%_%data%.txt
 $if setglobal sm_ppt_9         $goto specify_winoptions
 $label after_ppt_output_name_9
 
-put 'start /w shademap %mapid% %mapid%_%data%.txt %mapid%_',gpxyzsm_plot_count:0:0,'_1';
+put 'start /w shademap %mapid% %mapid%_%data%.txt %mapid%_',gpxyzsm_plot_count:0:0,'_1' /;
 putclose;
 
-execute 'run_shademap.bat';
 execute 'copy "%gams.scrdir%shademap.scr" "%mapid%.opt"';
+execute 'run_shademap.bat';
 execute 'sleep 1';
 $goto  end_of_shademap
 
 
 $label interactive_shademap
 
+*execute 'shellexecute shademap %mapid% %mapid%_%data%.txt';
 execute 'start shademap %mapid% %mapid%_%data%.txt';
 execute 'copy "%gams.scrdir%shademap.scr" "%mapid%.opt"';
 *execute 'start shademap %mapid% %mapid%_%data%.txt';
